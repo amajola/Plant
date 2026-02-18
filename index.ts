@@ -2,6 +2,7 @@ import { drizzle } from "drizzle-orm/neon-http";
 import { seedDatabase } from "./src/db/seed";
 import { reset } from "drizzle-seed";
 import { locationSchema } from "./src/db/schema/location.schema";
+import { plantSchema } from "./src/db/schema/plant.schema";
 
 // Interface Merged the .env file
 declare module "bun" {
@@ -12,8 +13,11 @@ declare module "bun" {
 
 async function main() {
   const db = drizzle(process.env.DATABASE_URL);
-  await reset(db, {locationSchema});
-  await seedDatabase(db).catch(console.error);
+  await reset(db, { plantSchema, locationSchema });
+  await seedDatabase(db);
 }
 
-main();
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
