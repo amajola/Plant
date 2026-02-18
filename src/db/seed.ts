@@ -2,6 +2,7 @@ import { type NeonHttpDatabase } from "drizzle-orm/neon-http";
 import { seed } from "drizzle-seed";
 import { locationSchema as location } from "./schema/location.schema";
 import { plantSchema as plant } from "./schema/plant.schema";
+import type { NewPlant } from "./schema/plant.schema";
 
 const PLANTS = [
   { name: "Monstera", species: "Monstera deliciosa" },
@@ -87,49 +88,41 @@ export async function seedDatabase(db: NeonHttpDatabase) {
     .from(location);
   const locationIds = seededLocations.map((l) => l.id);
 
+  const statuses = plant.status.enumValues;
+  const potTypes = plant.pot_type.enumValues;
+  const soilTypes = plant.soil_type.enumValues;
+  const photoUrls = [
+    "https://images.unsplash.com/photo-1614594975525-e45190c55d0b",
+    "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a",
+    "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f",
+    "https://images.unsplash.com/photo-1509423350716-97f9360b4e09",
+    "https://images.unsplash.com/photo-1463936575829-25148e1db1b8",
+    "https://images.unsplash.com/photo-1501004318855-cd2e3303afa3",
+    "https://images.unsplash.com/photo-1485955900006-10f4d324d411",
+    "https://images.unsplash.com/photo-1604762524889-3e2fcc145683",
+    "https://images.unsplash.com/photo-1470058869958-2a77cb20b204",
+    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
+  ];
+
+  const pick = <T>(arr: readonly T[]) =>
+    arr[Math.floor(Math.random() * arr.length)];
+  const randInt = (min: number, max: number) =>
+    Math.floor(Math.random() * (max - min + 1)) + min;
+
   console.log("Seeding plants...");
-  await seed(db, { plant }).refine((functions) => ({
-    plant: {
-      count: 40,
-      columns: {
-        name: functions.valuesFromArray({
-          values: PLANTS.map((p) => p.name),
-        }),
-        species: functions.valuesFromArray({
-          values: PLANTS.map((p) => p.species),
-        }),
-        hero_photo_url: functions.valuesFromArray({
-          values: [
-            "https://images.unsplash.com/photo-1614594975525-e45190c55d0b",
-            "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a",
-            "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f",
-            "https://images.unsplash.com/photo-1509423350716-97f9360b4e09",
-            "https://images.unsplash.com/photo-1463936575829-25148e1db1b8",
-            "https://images.unsplash.com/photo-1501004318855-cd2e3303afa3",
-            "https://images.unsplash.com/photo-1485955900006-10f4d324d411",
-            "https://images.unsplash.com/photo-1604762524889-3e2fcc145683",
-            "https://images.unsplash.com/photo-1470058869958-2a77cb20b204",
-            "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
-          ],
-        }),
-        bio: functions.loremIpsum({ sentencesCount: 1 }),
-        status: functions.valuesFromArray({
-          values: [...plant.status.enumValues],
-        }),
-        pot_size: functions.int({ minValue: 4, maxValue: 30 }),
-        height: functions.int({ minValue: 5, maxValue: 200 }),
-        spread: functions.int({ minValue: 5, maxValue: 100 }),
-        pot_type: functions.valuesFromArray({
-          values: [...plant.pot_type.enumValues],
-        }),
-        soil_type: functions.valuesFromArray({
-          values: [...plant.soil_type.enumValues],
-        }),
-        location_id: functions.valuesFromArray({
-          values: locationIds,
-        }),
-      },
-    },
+  const rows: NewPlant[] = PLANTS.map((p) => ({
+    name: p.name,
+    species: p.species,
+    status: pick(statuses),
+    pot_size: randInt(4, 30),
+    height: randInt(5, 200),
+    spread: randInt(5, 100),
+    pot_type: pick(potTypes),
+    soil_type: pick(soilTypes),
+    hero_photo_url: pick(photoUrls),
+    location_id: pick(locationIds),
   }));
+
+  await db.insert(plant).values(rows);
   console.log("Seeding complete.");
 }
