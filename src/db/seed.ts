@@ -24,6 +24,26 @@ const PLANTS = [
   { name: "Croton", species: "Codiaeum variegatum" },
   { name: "Orchid", species: "Phalaenopsis amabilis" },
   { name: "Succulent Mix", species: "Echeveria elegans" },
+  { name: "Cast Iron Plant", species: "Aspidistra elatior" },
+  { name: "Ponytail Palm", species: "Beaucarnea recurvata" },
+  { name: "Anthurium", species: "Anthurium andraeanum" },
+  { name: "Prayer Plant", species: "Maranta leuconeura" },
+  { name: "African Violet", species: "Streptocarpus sect. Saintpaulia" },
+  { name: "Pothos Neon", species: "Epipremnum aureum 'Neon'" },
+  { name: "Swiss Cheese Plant", species: "Monstera adansonii" },
+  { name: "Nerve Plant", species: "Fittonia albivenis" },
+  { name: "Heartleaf Philodendron", species: "Philodendron cordatum" },
+  { name: "Parlor Palm", species: "Chamaedorea elegans" },
+  { name: "Umbrella Plant", species: "Schefflera arboricola" },
+  { name: "Pilea", species: "Pilea peperomioides" },
+  { name: "English Ivy", species: "Hedera helix" },
+  { name: "Tradescantia", species: "Tradescantia zebrina" },
+  { name: "Hoya", species: "Hoya carnosa" },
+  { name: "Oxalis", species: "Oxalis triangularis" },
+  { name: "Ctenanthe", species: "Ctenanthe burle-marxii" },
+  { name: "Alocasia", species: "Alocasia amazonica" },
+  { name: "Haworthia", species: "Haworthiopsis attenuata" },
+  { name: "Bunny Ears Cactus", species: "Opuntia microdasys" },
 ];
 
 export async function seedDatabase(db: NeonHttpDatabase) {
@@ -70,7 +90,7 @@ export async function seedDatabase(db: NeonHttpDatabase) {
   console.log("Seeding plants...");
   await seed(db, { plant }).refine((functions) => ({
     plant: {
-      count: 20,
+      count: 40,
       columns: {
         name: functions.valuesFromArray({
           values: PLANTS.map((p) => p.name),
