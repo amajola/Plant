@@ -114,7 +114,7 @@ export async function seedDatabase(db: NeonHttpDatabase) {
     name: p.name,
     species: p.species,
     bio: p.bio,
-    status: pick(statuses),
+    status: pick(statuses)!,
     pot_size: randInt(4, 30),
     height: randInt(5, 200),
     spread: randInt(5, 100),
