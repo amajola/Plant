@@ -1,8 +1,6 @@
 import {
-  boolean,
   date,
   integer,
-  PgEnumColumn,
   pgTable,
   text,
   timestamp,
@@ -12,8 +10,9 @@ import { type InferSelectModel, type InferInsertModel } from "drizzle-orm";
 
 export const locationSchema = pgTable("location", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  indoor_outdoor: text({ enum: ["indoor", "outdoor"] }).notNull(),
-  light_direction: text({
+  indoor_outdoor: varchar({ enum: ["indoor", "outdoor"] }).notNull(),
+  name: varchar({ length: 160 }),
+  light_direction: varchar({
     enum: [
       "north",
       "northeast",
@@ -27,12 +26,12 @@ export const locationSchema = pgTable("location", {
   }).notNull(),
   light_type: text({ enum: ["natural", "artificial", "mixed"] }).notNull(),
   window_proximity: integer().notNull(),
-  notes: varchar({ length: 265 }),
-  created_at: date().defaultNow(),
-  update_at: timestamp()
+  notes: varchar({ length: 255 }),
+  created_at: timestamp().defaultNow(),
+  updated_at: timestamp()
     .defaultNow()
     .$onUpdate(() => new Date()),
-  light_value: text({
+  light_value: varchar({
     enum: ["shade", "partial_shade", "bright_indirect", "bright_direct"],
   }).notNull(),
 });
