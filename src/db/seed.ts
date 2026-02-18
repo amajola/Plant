@@ -3,86 +3,80 @@ import { seed } from "drizzle-seed";
 import { locationSchema as location } from "./schema/location.schema";
 import { plantSchema as plant } from "./schema/plant.schema";
 
+const PLANTS = [
+  { name: "Monstera", species: "Monstera deliciosa" },
+  { name: "Fiddle Leaf Fig", species: "Ficus lyrata" },
+  { name: "Snake Plant", species: "Sansevieria trifasciata" },
+  { name: "Pothos", species: "Epipremnum aureum" },
+  { name: "Peace Lily", species: "Spathiphyllum wallisii" },
+  { name: "Spider Plant", species: "Chlorophytum comosum" },
+  { name: "ZZ Plant", species: "Zamioculcas zamiifolia" },
+  { name: "Rubber Plant", species: "Ficus elastica" },
+  { name: "Aloe Vera", species: "Aloe barbadensis" },
+  { name: "Bird of Paradise", species: "Strelitzia reginae" },
+  { name: "Philodendron", species: "Philodendron hederaceum" },
+  { name: "Calathea", species: "Calathea orbifolia" },
+  { name: "Boston Fern", species: "Nephrolepis exaltata" },
+  { name: "Jade Plant", species: "Crassula ovata" },
+  { name: "String of Pearls", species: "Senecio rowleyanus" },
+  { name: "Chinese Evergreen", species: "Aglaonema commutatum" },
+  { name: "Dracaena", species: "Dracaena marginata" },
+  { name: "Croton", species: "Codiaeum variegatum" },
+  { name: "Orchid", species: "Phalaenopsis amabilis" },
+  { name: "Succulent Mix", species: "Echeveria elegans" },
+];
+
 export async function seedDatabase(db: NeonHttpDatabase) {
   const existingLocations = await db.select().from(location).limit(1);
   const existingPlants = await db.select().from(plant).limit(1);
 
-  if (existingLocations.length > 0 && existingPlants.length > 0) {
-    console.log("Data already seeded. Skipping.");
+  if (existingLocations.length > 0) {
+    console.log("Locations already seeded. Skipping.");
+  } else {
+    console.log("Seeding locations...");
+    await seed(db, { location }).refine((functions) => ({
+      location: {
+        count: 10,
+        columns: {
+          indoor_outdoor: functions.valuesFromArray({
+            values: [...location.indoor_outdoor.enumValues],
+          }),
+          light_direction: functions.valuesFromArray({
+            values: [...location.light_direction.enumValues],
+          }),
+          light_type: functions.valuesFromArray({
+            values: [...location.light_type.enumValues],
+          }),
+          window_proximity: functions.int({ maxValue: 100, minValue: 0 }),
+          notes: functions.loremIpsum({ sentencesCount: 1 }),
+          light_value: functions.valuesFromArray({
+            values: [...location.light_value.enumValues],
+          }),
+        },
+      },
+    }));
+  }
+
+  if (existingPlants.length > 0) {
+    console.log("Plants already seeded. Skipping.");
     return;
   }
 
-  console.log("Seeding data...");
-  await seed(db, { location, plant }).refine((functions) => ({
-    location: {
-      count: 10,
-      columns: {
-        indoor_outdoor: functions.valuesFromArray({
-          values: [...location.indoor_outdoor.enumValues],
-        }),
-        light_direction: functions.valuesFromArray({
-          values: [...location.light_direction.enumValues],
-        }),
-        light_type: functions.valuesFromArray({
-          values: [...location.light_type.enumValues],
-        }),
-        window_proximity: functions.int({ maxValue: 100, minValue: 0 }),
-        notes: functions.loremIpsum({ sentencesCount: 1 }),
-        light_value: functions.valuesFromArray({
-          values: [...location.light_value.enumValues],
-        }),
-      },
-    },
+  const seededLocations = await db
+    .select({ id: location.id })
+    .from(location);
+  const locationIds = seededLocations.map((l) => l.id);
+
+  console.log("Seeding plants...");
+  await seed(db, { plant }).refine((functions) => ({
     plant: {
       count: 20,
       columns: {
         name: functions.valuesFromArray({
-          values: [
-            "Monstera",
-            "Fiddle Leaf Fig",
-            "Snake Plant",
-            "Pothos",
-            "Peace Lily",
-            "Spider Plant",
-            "ZZ Plant",
-            "Rubber Plant",
-            "Aloe Vera",
-            "Bird of Paradise",
-            "Philodendron",
-            "Calathea",
-            "Boston Fern",
-            "Jade Plant",
-            "String of Pearls",
-            "Chinese Evergreen",
-            "Dracaena",
-            "Croton",
-            "Orchid",
-            "Succulent Mix",
-          ],
+          values: PLANTS.map((p) => p.name),
         }),
         species: functions.valuesFromArray({
-          values: [
-            "Monstera deliciosa",
-            "Ficus lyrata",
-            "Sansevieria trifasciata",
-            "Epipremnum aureum",
-            "Spathiphyllum wallisii",
-            "Chlorophytum comosum",
-            "Zamioculcas zamiifolia",
-            "Ficus elastica",
-            "Aloe barbadensis",
-            "Strelitzia reginae",
-            "Philodendron hederaceum",
-            "Calathea orbifolia",
-            "Nephrolepis exaltata",
-            "Crassula ovata",
-            "Senecio rowleyanus",
-            "Aglaonema commutatum",
-            "Dracaena marginata",
-            "Codiaeum variegatum",
-            "Phalaenopsis amabilis",
-            "Echeveria elegans",
-          ],
+          values: PLANTS.map((p) => p.species),
         }),
         hero_photo_url: functions.valuesFromArray({
           values: [
@@ -110,6 +104,9 @@ export async function seedDatabase(db: NeonHttpDatabase) {
         }),
         soil_type: functions.valuesFromArray({
           values: [...plant.soil_type.enumValues],
+        }),
+        location_id: functions.valuesFromArray({
+          values: locationIds,
         }),
       },
     },

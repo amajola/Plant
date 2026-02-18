@@ -14,7 +14,10 @@ declare module "bun" {
 async function main() {
   const db = drizzle(process.env.DATABASE_URL);
   await reset(db, { plantSchema, locationSchema });
-  await seedDatabase(db).catch(console.error);
+  await seedDatabase(db);
 }
 
-main();
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

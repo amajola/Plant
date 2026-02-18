@@ -6,7 +6,7 @@ CREATE TABLE "location" (
 	"light_type" text NOT NULL,
 	"window_proximity" integer NOT NULL,
 	"notes" varchar(255),
-	"created_at" date DEFAULT now(),
+	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp DEFAULT now(),
 	"light_value" varchar NOT NULL
 );
@@ -31,4 +31,4 @@ CREATE TABLE "plant" (
 	"soil_type" varchar
 );
 --> statement-breakpoint
-ALTER TABLE "plant" ADD CONSTRAINT "plant_location_id_location_id_fkey" FOREIGN KEY ("location_id") REFERENCES "location"("id");
+ALTER TABLE "plant" ADD CONSTRAINT "plant_location_id_location_id_fkey" FOREIGN KEY ("location_id") REFERENCES "location"("id") ON DELETE SET NULL;
